@@ -1,0 +1,32 @@
+% !TEX program = xelatex
+
+\documentclass[fontsize=12pt, landscape,DIV=7]{scrreprt}
+\usepackage[margin=2cm, heightrounded]{geometry}
+\pagestyle{empty}
+
+\usepackage{stmaryrd}
+
+% fonts
+\usepackage{unicode-math}
+\usepackage{polyglossia} 
+\setdefaultlanguage{english}
+
+% colors
+\usepackage{xcolor}
+\definecolor{mygreen}{RGB}{0, 0, 0}
+\definecolor{myred}{RGB}{54, 54, 54}
+
+\usepackage{tikz}
+\usepackage{tikz-qtree}
+\tikzset{execute at begin node=\strut,
+  every tree node/.style={align=center,
+    anchor=base,
+    font=\sffamily\bfseries}}
+
+\usepackage{gb4e}
+
+\begin{document}
+
+\input{treeparses}
+
+\end{document}

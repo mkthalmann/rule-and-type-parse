@@ -1,0 +1,10 @@
+*.log
+*.aux
+*.bcf
+*.xml
+*.xdv
+*.gz
+__pycache__
+find_hierarchy
+.DS_Store
+.vscode
