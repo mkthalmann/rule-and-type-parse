@@ -24,12 +24,20 @@ with open("LaTeX/treeparses.tex", "w") as f:
 
 ## Examples
 
+### Single Image
+
 The input string in (1) produces the output below (once the corresponding (Xe)LaTeX code is compiled to pdf).
 
 1. `[.\\node(top){S }; [.NP^1 [.N^1 Andrew ] ] [.VP [.V hits ] [.NP^2 [.N^2 Mathis ] ] ] ]`
 
 <p align="center">
-<img src="https://github.com/mkthalmann/semantics/blob/master/media/sample.jpg" width="448" height="490">
+<img src="https://github.com/mkthalmann/rule-and-type-parse/blob/master/media/sample.jpg" width="448" height="490">
+</p>
+
+### Multipage PDF
+
+<p align="center">
+<img src="https://github.com/mkthalmann/rule-and-type-parse/blob/master/media/semtree.gif" width="800">
 </p>
 
 ## Restrictions
