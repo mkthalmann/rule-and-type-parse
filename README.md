@@ -47,6 +47,10 @@ The input string in (1) produces the output below (once the corresponding (Xe)La
 * Lexical entries and the nodes corresponding to them must match exactly: the look-up is case sensitive and does not recognize inflectional suffixes or the like (rectifying this would probably involve tokenizing, something I have not done before).
 * Traces cannot bear indices; though that is easily fixed. I just haven't had a reason to do so yet.
 
+## License
+
+<a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+
 ## Feedback
 
 If you have any comments, feature requests or suggestions, please feel free to send me an [e-mail](mailto:maik.thalmann@gmail.com?subject=[GitHub]%20SemTrees).
