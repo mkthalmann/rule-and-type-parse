@@ -4,15 +4,15 @@ from nltk import Tree
 
 from lexicon import lex
 
+import warnings
+
 # TODO: add a duplicate key error for the tree dict; as the second key will just overwrite the first which will lead to unwanted results
 #       - this is not possible with dicts, but can be accomplished with a dataframe (such that the len of a column must be equal to the set of its values)
 #       - would also allow for the rules and the types to be contained in the same object
 #       - but this involves redesigning all the functions to work with dfs instead of dicts
-# TODO: make nodes have subscripts (important for traces) while still being able to look up their unsubscripted version in the lexicon
+# TODO: right now, numerical subscripts are simply deleted; might be nice to include them in the final output
 # TODO: make the replacement operation case insensitive
-# TODO: regex for adding the super- and subscripts (right now, there'd be a conflict if both "essen" and "gegessen" were in the same sentence)
-# TODO: check for traces that are not specified as $t$ (e.g. raise when t follows a dot and then there's a space)
-
+# TODO: how to deal with ambiguous lexical entries? right now, I have "der_{RP}" und "der" as separate entries. It would be good to have have the system try both of them and see which one works
 
 class TernaryBranchingError(Exception):
     """Raise when a mother node contains more than two daughters."""
@@ -26,10 +26,6 @@ class LexiconError(Exception):
     """Raise when a terminal node is not specified in the lexicon."""
 
 
-class CompositionError(Exception):
-    """Raise when a node requires an illicit application of a compositional rule."""
-
-
 class TreeBracketError(Exception):
     """Raise when a square bracket is directly next to a non-whitespace character (a configuration that gives tikz qtree trouble)."""
 
@@ -38,7 +34,7 @@ class LaTeXEscapeError(Exception):
     """Raise when LaTeX code was not properly escaped in the input string"""
 
 
-def clean_tree(string, top_node=True):
+def clean_tree(string):
     """Take a LaTeX qtree string and convert it into a format that is easily usable by nltk for parsing. Return the reformatted string.
     
     Arguments:
@@ -51,12 +47,21 @@ def clean_tree(string, top_node=True):
     if "\node" in string:
         raise LaTeXEscapeError(f"Slashes in LaTeX qtree string need to be escaped.")
     # replace some characters to make the tree nltk parseable
+    # turn brackets into parentheses
     string = string.replace("[", "(").replace(".", "").replace("]", ")")
-    if top_node:
-        string = (
-            string.replace("\\node(top){", "").replace("}", "", 1).replace(";", "", 1)
-        )
 
+    # replace root node specifications
+    string = re.sub(r"\\node\(top\){(.*?)};", r"\1", string)
+
+    return string
+
+def remove_subscripts(string):
+    """Remove some parts of the tree string. Defined separately here because it we not only wanna do it at the start of the computation but also after, namely when the nodes are replaced with their enriched versions"""
+
+    # remove numerical subscripts from the input string
+    if re.search(r"_{?[\d]+}?", string):
+        string = re.sub(r"_{?[\d]+}?", "", string)
+        warnings.warn("Numerical subscripts will not be preserved in the annotated trees. Others should not be used unless to disambiguate between lexical entries, as with 'der_{RP}'.")
     return string
 
 
@@ -71,6 +76,9 @@ def find_hierarchy(string):
     """
     # perform some cleaning and preparatory steps
     string = clean_tree(string)
+
+    string = remove_subscripts(string)
+
     # parse the tree string and turn it into a Tree
     tree = Tree.fromstring(string)
     tree_dict = {}
@@ -88,31 +96,21 @@ def find_hierarchy(string):
             except IndexError:
                 # to catch nodes with only a single daughter
                 pass
+
+        # here we check for illicit structures that contain more than two daughters and raise an error if they do
+        # we only check for three daughters here; and will not include further daughters in the error message
+        try:
+            subtree[2]
+        except IndexError:
+            pass
+        else:
+            raise TernaryBranchingError(f"Node '{subtree.label()}' contains more than two daughters: '{subtree[0].label()}', '{subtree[1].label()}', '{subtree[2].label()}'")
+
         # add the mother and her (list of) daughters
         tree_dict[subtree.label()] = daughters
         daughters = []
 
     return tree, tree_dict
-
-
-def check_tree(tree_dict):
-    """Check the tree dictionary. Return True of checks are passed.
-    
-    Arguments:
-        tree_dict {dict} -- Hierarchical dictionary of the parsed tree; e.g., {'NP': ['AP', 'N'], 'AP': ['schuldiger'], 'N': ['Idiot']}
-    
-    Returns:
-        bool -- True iff checks are passed
-    """
-    for mother, daughters in tree_dict.items():
-        # more than two daughters are not normally composable
-        if len(daughters) > 2:
-            raise TernaryBranchingError(
-                f"Node {mother} has more than two daughters: {daughters}."
-            )
-
-        return True
-
 
 def compose_lexical(tree_dict, lexicon):
     """Starts the typing process of the tree dictionary by checking the lexicon for types. Return dictionary of nodes in the tree as keys and a tuple of daughters and their semantic types as the (list of) values.
@@ -172,7 +170,13 @@ def compose_lexical(tree_dict, lexicon):
             except KeyError:
                 # if the node is not a mother node in the tree, it's a terminal node that should be specified in the lexicon
                 if daughters[0] not in tree_dict:
-                    raise LexiconError(
+                    print(daughters[0] + daughters[0].lower())
+                    if daughters[0].lower() in lex_dict or daughters[0].capitalize():
+                        raise LexiconError(
+                        f"Terminal node '{daughters[0]}' is not in the lexicon, but '{daughters[0].lower()}' or '{daughters[0].capitalize()}' is. Consider changing the capitalization."
+                    )
+                    else:
+                        raise LexiconError(
                         f"Terminal node '{daughters[0]}' not in lexicon."
                     )
         # mothers dominating two daughters now
@@ -252,7 +256,7 @@ def compose_functional(tree, type_dict, rule_dict):
                 # if they are not, the tree structure is wrong
                 except KeyError as e:
                     raise TreeStructureError(
-                        f"Tree structure not correct, {e} expected but not found as mother in {tree}."
+                        f"Tree structure not correct, {e} expected but not found as mother node in {tree}."
                     )
                 # FA only works if both daughters actually do have a type
                 if type_left and type_right:
@@ -262,13 +266,13 @@ def compose_functional(tree, type_dict, rule_dict):
                         type_dict[mother] = type_right[
                             len(type_left) + 3 : len(type_right) - 1
                         ]
-                        rule_dict[mother] = "FA\\shortleftarrow"
+                        rule_dict[mother] = r"FA\\shortleftarrow"
                     elif type_right in type_left[0 : len(type_right) + 1]:
                         # take only the remaining type after functional application
                         type_dict[mother] = type_left[
                             len(type_right) + 3 : len(type_left) - 1
                         ]
-                        rule_dict[mother] = "FA\\shortrightarrow"
+                        rule_dict[mother] = r"FA\\shortrightarrow"
 
     return type_dict, rule_dict
 
@@ -329,9 +333,9 @@ def compose_pred_mod(tree, type_dict, rule_dict):
                             # and add the rule to the rule dict
                             rule_dict[mother] = "PM"
                         else:
-                            raise CompositionError(
-                                f"Pred.Mod. only applies to <e, t> arguments. Got {mother_type}."
-                            )
+                            # if the type is wrong, add ?
+                            type_dict[mother] = "?"
+                            rule_dict[mother] = "?"
 
     return type_dict, rule_dict
 
@@ -346,26 +350,26 @@ def compose_all(tree_dict, lex_dict):
     Returns:
         (dict, dict) -- Two dictionaries, first with semantic types, second one with rules of composition
     """
-    if check_tree(tree_dict):
-        # start by checking the lexicon for the values of terminal nodes
-        typed_nodes, rules = compose_lexical(tree_dict, lex_dict)
-        counter = 1
-        # repeat the rules of composition a number of times until all nodes have a type
-        # or raise a composition error
-        while None in typed_nodes.values() and None in rules.values():
-            # NN: non-branching nodes
-            typed_nodes, rules = compose_non_branching(tree_dict, typed_nodes, rules)
-            # FA: functional application of function and argument
-            typed_nodes, rules = compose_functional(tree_dict, typed_nodes, rules)
-            # PA: predicate abstraction with moved element
-            typed_nodes, rules = compose_pred_abstr(tree_dict, typed_nodes, rules)
-            # PM: predicate modification for two property-type daughters
-            typed_nodes, rules = compose_pred_mod(tree_dict, typed_nodes, rules)
-            counter += 1
-            if counter > 15:
-                raise CompositionError(
-                    f"Tree structure could not be composed. Could there be a type mismatch?\n{tree_dict}\n{typed_nodes}"
-                )
+    # start by checking the lexicon for the values of terminal nodes
+    typed_nodes, rules = compose_lexical(tree_dict, lex_dict)
+    counter = 1
+    # repeat the rules of composition a number of times until all nodes have a type
+    # or raise a composition error
+    while None in typed_nodes.values() and None in rules.values():
+        # NN: non-branching nodes
+        typed_nodes, rules = compose_non_branching(tree_dict, typed_nodes, rules)
+        # FA: functional application of function and argument
+        typed_nodes, rules = compose_functional(tree_dict, typed_nodes, rules)
+        # PA: predicate abstraction with moved element
+        typed_nodes, rules = compose_pred_abstr(tree_dict, typed_nodes, rules)
+        # PM: predicate modification for two property-type daughters
+        typed_nodes, rules = compose_pred_mod(tree_dict, typed_nodes, rules)
+        counter += 1
+        if counter > 15:
+            # if the tree cannot be composed, add question marks to the tree to indicate the nodes from which composition could not proceed
+            typed_nodes = { k: ('?' if v is None else v) for k, v in typed_nodes.items() }
+            rules = { k: ('?' if v is None else v) for k, v in rules.items() }
+
     return typed_nodes, rules
 
 
@@ -383,6 +387,11 @@ def enrich_tree_types(string, type_dict):
         raise TreeBracketError(
             f"Closing square brackets need to be preceeded by white space:\n{string}"
         )
+
+    string = remove_subscripts(string)
+    # add a space character into the top node to make type and rule replacement possible
+    string = re.sub(r"(\\node\(top\){.*?)(})", r"\1 \2", string)
+
     for mother in type_dict.keys():
         # we need the space after the mother node so that NP isnt targeted by both N and NP
         search_for = f"{mother} "
@@ -415,6 +424,10 @@ def enrich_tree_full(string, type_dict, rule_dict):
             f"Closing square brackets need to be preceeded by white space:\n{string}"
         )
 
+    string = remove_subscripts(string)
+    # add a space character into the top node to make type and rule replacement possible
+    string = re.sub(r"(\\node\(top\){.*?)(})", r"\1 \2", string)
+
     for mother in type_dict.keys():
         # we need the space after the mother node so that NP isnt targeted by both N and NP
         search_for = f"{mother} "
@@ -422,9 +435,9 @@ def enrich_tree_full(string, type_dict, rule_dict):
             # get types
             subscript = type_dict[mother]
             # replace the ugly <> with LaTeX expressions for tuples
-            subscript = subscript.replace("<", "\langle ").replace(">", r"\rangle")
+            subscript = subscript.replace("<", r"\\langle ").replace(">", r"\\rangle")
             # insert more space after the comma
-            subscript = subscript.replace(",", ",\,")
+            subscript = subscript.replace(",", r",\\,")
         # for empty types
         else:
             subscript = "-"
@@ -434,10 +447,20 @@ def enrich_tree_full(string, type_dict, rule_dict):
         # this is to handle indices, which do not have a rule associated with them
         except KeyError:
             superscript = "-"
+
+        # combine the old tree nodes with the rules and types we parsed
+        # escape any characters
+        mother = re.sub(r"\^", r"\^", mother)
+        mother = re.sub(r"\$", r"\$", mother)
+
+        # the search pattern for the string to be enriched
+        pattern = r"([\.| |{]" + mother + r") "
+
         # put both the rule and the type together (with some added LaTeX)
-        mother_and_more = f"{mother}\\,^{{{{\\color{{mygreen}}\\mathtt{{{superscript}}}}}}}_{{{{\\color{{myred}}{subscript}}}}} "
-        # replace the mother node with mother node plus new subscript
-        string = string.replace(search_for, mother_and_more)
+        mother_and_more = r"\\,^{{\\color{mygreen}\\mathtt{" + superscript + r"}}}_{{\\color{myred}" + subscript + "}} "
+
+        # replace the mother node with mother node plus enrichment
+        string = re.sub(pattern, r"\1" + mother_and_more, string)
 
     return string
 
@@ -453,11 +476,13 @@ def tree_to_latex(tree_string, lexicon):
         str -- gb4e exe environment with two trees: (i) input tree, (ii) tree with semantic types and compositional rules,
     """
     tree, tree_dict = find_hierarchy(tree_string)
+
     types, rules = compose_all(tree_dict, lexicon)
     # get the semantic types
     typed_tree_string = enrich_tree_types(tree_string, types)
     # tree with semantic types and rules
     both_tree_string = enrich_tree_full(tree_string, types, rules)
+
     # the sentence is just the terminal nodes of the tree (those not prefixed with a period)
     sentence = " ".join(tree.leaves()) + "."
 
@@ -473,8 +498,9 @@ def tree_to_latex(tree_string, lexicon):
     )
 
     # lambda expression for the tikz qtree environment
+    baseline = "[baseline=(top.base)]" if "\\node(top)" in both_tree_string else ""
     make_tree = (
-        lambda x: f"""\\begin{{tikzpicture}}[baseline=(top.base)]
+        lambda x: f"""\\begin{{tikzpicture}}{baseline}
                     \Tree {x}
                 \end{{tikzpicture}}"""
     )
@@ -490,22 +516,27 @@ def tree_to_latex(tree_string, lexicon):
 
 
 tree_strings = [
-    "[.\\node(top){S }; [.NP^1 [.N^1 Andrew ] ] [.VP [.V hits ] [.NP^2 [.N^2 Mathis ] ] ] ]",
-    "[.\\node(top){A }; [.B not [.C [.D [.E [.F [.G tanzt ] ] ] ] [.Peter ] ] ] ]",
-    "[.\\node(top){DP }; [.D der ] [.NP [.AP [.A große ] ] [.N$''''$ [.AP^2 [.A^2 verschüchterte ] ] [.N$'''$ [.AP^3 [.A^3 fliegende ] ] [.N$''$ [.N$'$ [.N Wolf ] ] [.PP [.P aus ] [.NP^2 [.N^2 Twilight ] ] ] ] ] ] ] ]",
-    "[.\\node(top){S }; [.NP [.N Andrew ] ] [.VP [.V malt ] [.CoordP [.DP^1 [.D^1 den ] [.NP^2 [.N^2 Wolf ] ] ] [.Coord$'$ [.Coord und_{ind} ] [.DP^2 [.D^2 die ] [.NP^3 [.N^3 Blumen ] ] ] ] ] ] ]",
-    "[.\\node(top){S }; [.DP [.D a ] [.NP [.N person ] ] ] [.XP [.1 ] [.S$'$ [.Neg not ] [.S$''$ [.NP^2 [.N^2 Bill ] ] [.VP [.V invite ] [.$t$ ] ] ] ] ] ]",
-    "[.\\node(top){NP }; [.AP schuldiger ] [.N Idiot ] ]",
-    "[.\\node(top){S }; [.S'' [.NP^1 [.Q some ] [.N^1 person ] ] [.VP [.V is ] [.AP [.A sad ] ] ] ] [.DisjP [.Disj or ] [.S' [.NP^2 [.N^2 she ] ] [.VP^2 [.V^2 sleeps ] ] ] ] ]",
-    "[.\\node(top){S' }; [.NP^1 [.Q alle ] [.N^1 Blumen ] ] [.XP [.1 ] [.S [.VP [.V beobachtet ] [.$t$ ] ] [.NP^2 [.N^2 Peter ] ] ] ] ]",
-    "[.\\node(top){S }; [.NP^1 [.N^1 Peter ] ] [.VP [.V ist ] [.DP [.D ein ] [.NP^2 [.N$''$^2 [.AP [.A fliegender ] ] [.N$'$^2 [.N^2 Junge ] ] ] [.PP [.P aus ] [.NP^3 [.N^3 Nimmerland ] ] ] ] ] ] ]",
-    "[.\\node(top){S }; [.NP [.N er ] ] [.VP [.V ist ] [.AP [.A stolz ] [.PP [.P auf ] [.NP^2 [.N^2 Maria ] ] ] ] ] ]",
-    "[.\\node(top){S }; [.NP [.Q einige ] [.N' [.AP^1 [.A^1 schnarchende ] ] [.N'' [.N Jungen ] ] ] ] [.VP [.V zwicken ] [.NP^2 [.D die ] [.N'^2 [.AP^2 [.A^2 kleinen ] ] [.N^2 Männer ] ] ] ] ]",
-    "[.\\node(top){S }; [.DP^1 [.D^1 der ] [.NP [.N$''$ [.N$'$ [.N Junge ] ] [.CP [.DP^2 der_{RP} ] [.C$'$ [.C wo ] [.S$'$ [.$t$ ] [.VP [.DP^3 [.D^3 die ] [.NP^2 [.N$''$^2 [.N$'$^2 [.N^2 Fee ] ] [.PP [.P aus ] [.DP^4 Nimmerland ] ] ] ] ]  [.V belästigt ] ] ] ] ] ] ] ]  [.VP^2 [.V^2 fliegt ] ] ]",
-    "[.\\node(top){WP }; [.DP^2 [.D^2 dem ] [.NP^2 [.N^2 Schüler ] ] ] [.ZP [.2 ] [.XP [.DP^1 [.D^1 das ] [.NP^1 [.N^1 Buch ] ] ] [.YP [.1 ] [.S [.NP^3 [.N^3 Bill ] ] [.VP [.V$'$ [.V gibt ] [.$t$ ] ] [.$t$ ] ] ] ] ] ] ]",
-    "[.\\node(top){S$'$ }; [.DP^2 [.D^2 alle ] [.NP^2 [.N^2 Hunde ] ] ] [.XP [.2 ] [.YP [.DP^1 [.D^1 einige ] [.NP^1 [.N^1 Türen ] ] ] [.ZP [.1 ] [.S [.$t$ ] [.VP [.V schließen ] [.$t$ ] ] ] ] ] ] ]",
+    "[.\\node(top){S}; [.NP^1 [.N^1 Andrew ] ] [.VP [.V hits ] [.NP^2 [.N^2 Mathis ] ] ] ]",
+    "[.\\node(top){A}; [.B not [.C [.D [.E [.F [.G tanzt ] ] ] ] [.Peter ] ] ] ]",
+    "[.\\node(top){DP}; [.D der ] [.NP [.AP [.A große ] ] [.N$''''$ [.AP^2 [.A^2 verschüchterte ] ] [.N$'''$ [.AP^3 [.A^3 fliegende ] ] [.N$''$ [.N$'$ [.N Wolf ] ] [.PP [.P aus ] [.NP^2 [.N^2 Twilight ] ] ] ] ] ] ] ]",
+    "[.\\node(top){S}; [.NP [.N Andrew ] ] [.VP [.V malt ] [.CoordP [.DP^1 [.D^1 den ] [.NP^2 [.N^2 Wolf ] ] ] [.Coord$'$ [.Coord und_{ind} ] [.DP^2 [.D^2 die ] [.NP^3 [.N^3 Blumen ] ] ] ] ] ] ]",
+    "[.\\node(top){S}; [.DP [.D a ] [.NP [.N person ] ] ] [.XP [.1 ] [.S$'$ [.Neg not ] [.S$''$ [.NP^2 [.N^2 Bill ] ] [.VP [.V invite ] [.$t$ ] ] ] ] ] ]",
+    "[.\\node(top){NP}; [.AP schuldiger ] [.N Idiot ] ]",
+    "[.\\node(top){S}; [.S'' [.NP^1 [.Q some ] [.N^1 person ] ] [.VP [.V is ] [.AP [.A sad ] ] ] ] [.DisjP [.Disj or ] [.S' [.NP^2 [.N^2 she ] ] [.VP^2 [.V^2 sleeps ] ] ] ] ]",
+    "[.\\node(top){S'}; [.NP^1 [.Q alle ] [.N^1 Blumen ] ] [.XP [.1 ] [.S [.VP [.V beobachtet ] [.$t$ ] ] [.NP^2 [.N^2 Peter ] ] ] ] ]",
+    "[.\\node(top){S}; [.NP^1 [.N^1 Peter ] ] [.VP [.V ist ] [.DP [.D ein ] [.NP^2 [.N$''$^2 [.AP [.A fliegender ] ] [.N$'$^2 [.N^2 Junge ] ] ] [.PP [.P aus ] [.NP^3 [.N^3 Nimmerland ] ] ] ] ] ] ]",
+    "[.\\node(top){S}; [.NP [.N er ] ] [.VP [.V ist ] [.AP [.A stolz ] [.PP [.P auf ] [.NP^2 [.N^2 Maria ] ] ] ] ] ]",
+    "[.\\node(top){S}; [.NP [.Q einige ] [.N' [.AP^1 [.A^1 schnarchende ] ] [.N'' [.N Jungen ] ] ] ] [.VP [.V zwicken ] [.NP^2 [.D die ] [.N'^2 [.AP^2 [.A^2 kleinen ] ] [.N^2 Männer ] ] ] ] ]",
+    "[.\\node(top){S}; [.DP^1 [.D^1 der ] [.NP [.N$''$ [.N$'$ [.N Junge ] ] [.CP [.DP^2 der_{RP}_1 ] [.C$'$ [.C wo ] [.S$'$ [.$t$_1 ] [.VP [.DP^3 [.D^3 die ] [.NP^2 [.N$''$^2 [.N$'$^2 [.N^2 Fee ] ] [.PP [.P aus ] [.DP^4 Nimmerland ] ] ] ] ]  [.V belästigt ] ] ] ] ] ] ] ]  [.VP^2 [.V^2 fliegt ] ] ]",
+    "[.S [.DP^1 [.D^1 der ] [.NP [.N$''$ [.N$'$ [.N Junge ] ] [.CP [.DP^2 der_{RP} ] [.C$'$ [.C wo ] [.S$'$ [.$t$_{1} ] [.VP [.DP^3 [.D^3 die ] [.NP^2 [.N$''$^2 [.N$'$^2 [.N^2 Fee ] ] [.PP [.P aus ] [.DP^4 Nimmerland ] ] ] ] ]  [.V belästigt ] ] ] ] ] ] ] ]  [.VP^2 [.V^2 fliegt ] ] ]",
+    "[.\\node(top){WP}; [.DP^2 [.D^2 dem ] [.NP^2 [.N^2 Schüler ] ] ] [.ZP [.2 ] [.XP [.DP^1 [.D^1 das ] [.NP^1 [.N^1 Buch ] ] ] [.YP [.1 ] [.S [.NP^3 [.N^3 Bill ] ] [.VP [.V$'$ [.V gibt ] [.$t$ ] ] [.$t$ ] ] ] ] ] ] ]",
+    "[.\\node(top){S$'$}; [.DP^2 [.D^2 alle ] [.NP^2 [.N^2 Hunde ] ] ] [.XP [.2 ] [.YP [.DP^1 [.D^1 einige ] [.NP^1 [.N^1 Türen ] ] ] [.ZP [.1 ] [.S [.$t$ ] [.VP [.V schließen ] [.$t$ ] ] ] ] ] ] ]",
+    "[.\\node(top){TP}; [.DP Maria ] [.T'' [.1 ] [.T' [.T^0 -s ] [.VP [.t ] [.V$'$ [.V^0 snore ] ] ] ] ] ]",
+    # "[.\\node(top){S}; [.DP peter ] [.VP Invite ] ]",
+    "[.\\node(top){S}; [.DP [.D^0 das ] [.NP essen ] ] [.VP $t$ ] ]",
+    "[.S [.DP [.D^0 das ] [.NP essen ] ] [.VP $t$ ] ]"
 ]
-
+     
 # tutorial = [
 #     "[.\\node(top){S }; [.Markus ] [.arbeitet ] ]",
 #     "[.\\node(top){S }; [.NP^1 [.N^1 Andrew ] ] [.VP [.V hits ] [.NP^2 [.N^2 Mathis ] ] ] ]",
@@ -514,7 +545,7 @@ tree_strings = [
 #     "[.\\node(top){DP }; [.D der ] [.NP [.AP [.A große ] ] [.N$''''$ [.AP^2 [.A^2 verschüchterte ] ] [.N$'''$ [.AP^3 [.A^3 fliegende ] ] [.N$''$ [.N$'$ [.N Wolf ] ] [.PP [.P aus ] [.NP^2 [.N^2 Twilight ] ] ] ] ] ] ] ]",
 #     "[.\\node(top){A }; [.B not [.C [.D [.E [.F [.G tanzt ] ] ] ] [.Peter ] ] ] ]",
 #     "[.\\node(top){S }; [.NP [.Q einige ] [.N' [.AP^1 [.A^1 schnarchende ] ] [.N'' [.N Jungen ] ] ] ] [.VP [.V zwicken ] [.NP^2 [.D die ] [.N'^2 [.AP^2 [.A^2 kleinen ] ] [.N^2 Männer ] ] ] ] ]",
-#     "[.\\node(top){S }; [.S'' [.NP^1 [.Q some ] [.N^1 person ] ] [.VP [.V is ] [.AP [.A sad ] ] ] ] [.DisjP [.Disj or ] [.S' [.NP^2 [.N^2 she ] ] [.VP^2 [.V^2 sleeps ] ] ] ] ]",
+#     "[.\\node(top){S }; [.S'' [.NP^1 [.Q some ] [.N^1 person ] ] [.VP [.V is ] [.AP [.A sad ] ] ] ] [.DisjP [.Disj or ] [.S' [.NP^2 [.N^2 she_{14} ] ] [.VP^2 [.V^2 sleeps ] ] ] ] ]",
 # ]
 
 if __name__ == "__main__":
