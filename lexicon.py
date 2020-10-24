@@ -14,11 +14,12 @@ lex = {
         "Maria",
     ],
     "<t, t>": ["not"],
-    "": ["is", "ist", "of", "es", "ein", "auf", "wo"],
+    "": ["is", "ist", "of", "es", "ein", "auf", "wo", "-s"],
     "pron": ["er", "he", "his", "she"],
     "<e, t>": [
         "mad",
         "person",
+        "essen",
         "sleeps",
         "tanzt",
         "schnarcht",
@@ -70,5 +71,5 @@ lex = {
     "<<e, t>, t>": ["nobody"],
     "<<e, t>, e>": ["the", "den", "der", "die", "das", "dem"],
     "index": ["1", "2", "der_{RP}"],
-    "trace": ["$t$"],
+    "trace": ["$t$", "t"],
 }
