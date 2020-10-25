@@ -14,7 +14,7 @@ lex = {
         "Maria",
     ],
     "<t, t>": ["not"],
-    "": ["is", "ist", "of", "es", "ein", "auf", "wo", "-s"],
+    "": ["is", "ist", "of", "es", "ein", "auf", "wo", "-s", "sind"],
     "pron": ["er", "he", "his", "she"],
     "<e, t>": [
         "mad",

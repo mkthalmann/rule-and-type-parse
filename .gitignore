@@ -8,3 +8,4 @@ __pycache__
 find_hierarchy
 .DS_Store
 .vscode
+maintainability/
