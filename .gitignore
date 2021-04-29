@@ -9,3 +9,5 @@ find_hierarchy
 .DS_Store
 .vscode
 maintainability/
+composition.**
+skeleton-composition.**
