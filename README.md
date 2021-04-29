@@ -22,9 +22,15 @@ with open("LaTeX/treeparses.tex", "w") as f:
     f.write(tree_to_latex(tree_string, lex))
 ```
 
-## On Composition Errors
+## Flourishes
 
-Though not shown here, composition errors are colorized differently from the other nodes by default. That is to say that composition errors (e.g. where a two nodes of type `e` are sisters) will not cause the script to crash (or complain). Instead, the rules and types of these nodes will be marked with "?" and colored in red.
+Next to annotating semantic types and rules of compositions, there are a few extra bits and pieces the script does (all of which can be disabled).
+
+- optionally only annotate the logical type
+- change the color of the type and rule annotations
+- note the necessary number of iterations through the entire tree to arrive at a full representation for each node in the LaTeX document
+- note the time it took
+- composition errors can be colorized differently from the others. That is to say that composition errors (e.g. where a two nodes of type `e` are sisters) will not cause the script to crash (or complain). Instead, the rules and types of these nodes can be marked with "?" and colored in red.
 
 ## Examples
 
@@ -46,10 +52,9 @@ The input string in (1) produces the output below (once the corresponding (Xe)La
 
 ## Restrictions
 
-* Nodes labels in the tree should be unique:
-  * `[.S [.NP [.N Mary ] ] [.VP [.V hits ] [.NP [.N Peter ] ] ] ]` would be illicit because both `NP` and `N` occur twice. More precisely, they would not be illicit, but they will not be distinguished by the script. If they bear the same logical type and are composed by the same rules, that does not matter, however (as is the case here). Thus, it is probably better to simply use superscript to have unique node labels.
-* Lexical entries and the nodes corresponding to them must match exactly: the look-up is case sensitive (though there will be a warning if a lower-case or capitalized version of an input node exists) and does not recognize inflectional suffixes or the like (rectifying this would probably involve tokenizing, which is not in the scope of this project).
-* ambiguous lexical entries need to individuated via non-numerical subscripts (e.g. `that_{RP}` and `that_{dem}`). While I want to handle lexical ambiguity in a more elegant way in the future, subscripting is the only option for now.
+- Numerical subscripts on nodes are deleted automatically, as are all superscripts. This is done to enable lexical lookup and to handle potentially non-unique node labels.
+- Lexical entries and the nodes corresponding to them must match exactly: the look-up is case sensitive (though there will be a warning if a lower-case or capitalized version of an input node exists) and does not recognize inflectional suffixes or the like (rectifying this would probably involve tokenizing, which is not in the scope of this project).
+- ambiguous lexical entries need to be individuated via non-numerical subscripts (e.g. `that_{RP}` and `that_{dem}`). While I want to handle lexical ambiguity in a more elegant way in the future, subscripting is the only option for now.
 
 ## License
 
