@@ -1,10 +1,10 @@
 import re
 import time
-from typing import Dict, List, Tuple
 import warnings
+from typing import Dict, List, Tuple
 
-from nltk import Tree
-from nltk import tree
+import pandas as pd
+from nltk import Tree, tree
 
 from lexicon import lex
 
@@ -49,7 +49,7 @@ def clean_tree(tree_string: str) -> str:
     tree_string = tree_string.replace("[", "(").replace(".", "").replace("]", ")")
 
     # replace root node specifications
-    tree_string = re.sub(r"\\node\(top\){(.*?)};", r"\1", tree_string)
+    tree_string = re.sub(r"\\node\(.*?\){(.*?)};", r"\1", tree_string)
 
     return tree_string
 
@@ -192,7 +192,7 @@ def compose_lexical(
                         or daughters[0].capitalize() in lex_dict
                     ):
                         raise LexiconError(
-                            f"Terminal node '{daughters[0]}' is not in the lexicon, but '{daughters[0].lower()}' or '{daughters[0].capitalize()}' is. Consider changing the capitalization."
+                            f"Terminal node '{daughters[0]}' is not in the lexicon, but the lowercase/capitalized version is. Consider changing the capitalization."
                         ) from None
                     else:
                         raise LexiconError(
@@ -512,7 +512,7 @@ def enrich_tree(
         else:
             superscript = ""
 
-        # make sure to escape the superscript and math characters so that they are not interpreted as regex characters
+        # make sure to escape the superscript and match characters so that they are not interpreted as regex characters
         mother_regex = re.sub(r"(\$|\^)", r"\\\1", mother)
 
         # replace the mother node with mother node plus enrichment
@@ -524,6 +524,43 @@ def enrich_tree(
         )
 
     return tree_string
+
+
+def lexicon_table(lex: dict) -> str:
+    """Turn the lexicon dictionary to a latex table. Returns string. LaTeX document requires `booktabs`
+
+    Args:
+        lex (dict): Dictionary that holds the types for all lexical entries
+
+    Returns:
+        str: LaTeX code (tabular environment)
+    """
+
+    # create a df from the lexicon dictionary
+    df = pd.DataFrame({key: pd.Series(value) for key, value in lex.items()})
+
+    # add some LaTeX syntax to column names
+    df = df.rename(columns=lambda x: re.sub("<", r"\\langle ", x))
+    df = df.rename(columns=lambda x: re.sub(">", r"\\rangle", x))
+    df = df.rename(columns=lambda x: re.sub("$", "$", x))
+    df = df.rename(columns=lambda x: re.sub("^", "$", x))
+    df = df.rename(
+        columns={
+            "$index$": "Indices",
+            "$trace$": "Traces",
+            "$pron$": "Pronouns",
+            "$$": "Vacuous",
+        }
+    )
+
+    # convert the df to LaTeX code
+    table = (
+        "\\clearpage\n\\scriptsize\n\\begin{center}\n"
+        + df.to_latex(index=False, escape=False, na_rep="")
+        + "\n\\end{center}"
+    )
+
+    return table
 
 
 def tree_to_latex(
@@ -538,6 +575,7 @@ def tree_to_latex(
     both: bool = True,
     iterations: bool = False,
     computation_time: bool = False,
+    verbatim_tree: bool = False,
 ) -> str:
     """Take a LaTeX qtree string, a tree structure dictionary, and a lexicon. Perform a compositional analysis and return a string that can be included in LaTeX documents with an example environment consisting of three subexamples: (i) input tree and the (ii) tree with types and rules.
 
@@ -553,6 +591,7 @@ def tree_to_latex(
         both (bool): Whether to annotate both rules and types or just types. (default: True)
         iterations (bool): Whether to show the number of iterations that were necessary to compute the annotations for the tree. (default: False)
         computation_time (bool): Whether to show the computation time necessary to generate the annotations for the tree. (default: False)
+        verbatim_tree (bool): Whether to include the input tree in the PDF. Requires "spverbatim" package. (default: False)
 
     Returns:
         str: gb4e exe environment with two trees: (i) input tree, (ii) tree with semantic types and compositional rules.
@@ -567,6 +606,10 @@ def tree_to_latex(
     # add the top node stuff into tree strings that do not have it, so that the examples with the trees are formatted nicely with gb4e
     tree_string_cleaned = re.sub(
         r"^\[\.([a-zA-Z]+)", r"[.\\node(top){\1};", tree_string_cleaned, 1
+    )
+    # change label of hightest node to "top" if it is not the label already already
+    tree_string_cleaned = re.sub(
+        r"\[.\\node\((.*?)\)", r"[.\\node(top)", tree_string_cleaned, 1
     )
 
     # get dictionary with (non-terminal) mothers as keys and a list of their daughter(s) as values.
@@ -595,6 +638,12 @@ def tree_to_latex(
             enriched_tree_string,
         )
 
+    # include the verbatim tree in the output PDF
+    if verbatim_tree:
+        tree_verbatim = "\\\\{\\scriptsize\\spverb|" + tree_string + "|}"
+    else:
+        tree_verbatim = ""
+
     # compute and format the computation time if so specified
     if computation_time:
         elapsed_ms = ", " + "{:.2f}".format((time.time() - start_time) * 1000) + "ms"
@@ -610,7 +659,7 @@ def tree_to_latex(
     # lambda expression that creates a gb4e example with two sub-examples; including the associated environment tags
     make_ex = (
         lambda w, x, y: f"""\\begin{{exe}}
-    \\ex {w}{number_of_iterations}
+    \\ex {w}{number_of_iterations}{tree_verbatim}
         \\begin{{xlist}}
             % input string: "{tree_string}"
             \\ex {x}
@@ -641,6 +690,7 @@ def tree_to_latex(
 if __name__ == "__main__":
     tree_strings = [
         "[.\\node(top){S}; [.NP^1 [.N^1 Andrew ] ] [.VP [.V hits ] [.NP^2 [.N^2 Mathis ] ] ] ]",
+        "[.\\node(up){S}; [.NP^1 [.N^1 Andrew ] ] [.VP [.V hits ] [.NP^2 [.N^2 Mathis ] ] ] ]",  # note that here the root node has a different label; still works though
         "[.\\node(top){A}; [.B not [.C [.D [.E [.F [.G tanzt ] ] ] ] [.Peter ] ] ] ]",
         "[.\\node(top){DP}; [.D der ] [.NP [.AP [.A große ] ] [.N$''''$ [.AP^2 [.A^2 verschüchterte ] ] [.N$'''$ [.AP^3 [.A^3 fliegende ] ] [.N$''$ [.N$'$ [.N Wolf ] ] [.PP [.P aus ] [.NP^2 [.N^2 Twilight ] ] ] ] ] ] ] ]",
         "[.\\node(top){S}; [.NP [.N Andrew ] ] [.VP [.V malt ] [.CoordP [.DP^1 [.D^1 den ] [.NP^2 [.N^2 Wolf ] ] ] [.Coord$'$ [.Coord und_{ind} ] [.DP^2 [.D^2 die ] [.NP^3 [.N^3 Blumen ] ] ] ] ] ] ]",
@@ -686,5 +736,8 @@ if __name__ == "__main__":
                     iterations=True,
                     # show the computation time
                     computation_time=True,
+                    # include verbatim tree in PDF
+                    verbatim_tree=True,
                 )
             )
+        f.write(lexicon_table(lex))

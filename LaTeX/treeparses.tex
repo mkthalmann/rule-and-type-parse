@@ -1,5 +1,5 @@
 \begin{exe}
-    \ex Andrew hits Mathis.\hfill\textit{\footnotesize $4/15$ iterations, 2.63ms}
+    \ex Andrew hits Mathis.\hfill\textit{\footnotesize $4/15$ iterations, 2.91ms}\\{\scriptsize\spverb|[.\node(top){S}; [.NP^1 [.N^1 Andrew ] ] [.VP [.V hits ] [.NP^2 [.N^2 Mathis ] ] ] ]|}
         \begin{xlist}
             % input string: "[.\node(top){S}; [.NP^1 [.N^1 Andrew ] ] [.VP [.V hits ] [.NP^2 [.N^2 Mathis ] ] ] ]"
             \ex \begin{tikzpicture}[baseline=(top.base)]
@@ -12,7 +12,20 @@
     \end{exe}
 
 \begin{exe}
-    \ex Not tanzt.\hfill\textit{\footnotesize $7/15$ iterations, 1.49ms}
+    \ex Andrew hits Mathis.\hfill\textit{\footnotesize $4/15$ iterations, 0.33ms}\\{\scriptsize\spverb|[.\node(up){S}; [.NP^1 [.N^1 Andrew ] ] [.VP [.V hits ] [.NP^2 [.N^2 Mathis ] ] ] ]|}
+        \begin{xlist}
+            % input string: "[.\node(up){S}; [.NP^1 [.N^1 Andrew ] ] [.VP [.V hits ] [.NP^2 [.N^2 Mathis ] ] ] ]"
+            \ex \begin{tikzpicture}[baseline=(top.base)]
+                    \Tree [.\node(top){S}; [.NP [.N Andrew ] ] [.VP [.V hits ] [.NP [.N Mathis ] ] ] ]
+                \end{tikzpicture}
+            \ex \begin{tikzpicture}[baseline=(top.base)]
+                    \Tree [.\node(top){S\,^{{\color{darkgray}\mathtt{FA\shortleftarrow}}}_{{\color{gray}t}} }; [.NP\,^{{\color{darkgray}\mathtt{NN}}}_{{\color{gray}e}} [.N\,^{{\color{darkgray}\mathtt{NN}}}_{{\color{gray}e}} Andrew\,^{{\color{darkgray}\mathtt{TN_1}}}_{{\color{gray}e}} ] ] [.VP\,^{{\color{darkgray}\mathtt{FA\shortrightarrow}}}_{{\color{gray}\langle e,\, t\rangle}} [.V\,^{{\color{darkgray}\mathtt{NN}}}_{{\color{gray}\langle e,\, \langle e,\, t\rangle\rangle}} hits\,^{{\color{darkgray}\mathtt{TN_1}}}_{{\color{gray}\langle e,\, \langle e,\, t\rangle\rangle}} ] [.NP\,^{{\color{darkgray}\mathtt{NN}}}_{{\color{gray}e}} [.N\,^{{\color{darkgray}\mathtt{NN}}}_{{\color{gray}e}} Mathis\,^{{\color{darkgray}\mathtt{TN_1}}}_{{\color{gray}e}} ] ] ] ]
+                \end{tikzpicture}
+        \end{xlist}
+    \end{exe}
+
+\begin{exe}
+    \ex Not tanzt.\hfill\textit{\footnotesize $7/15$ iterations, 1.46ms}\\{\scriptsize\spverb|[.\node(top){A}; [.B not [.C [.D [.E [.F [.G tanzt ] ] ] ] [.Peter ] ] ] ]|}
         \begin{xlist}
             % input string: "[.\node(top){A}; [.B not [.C [.D [.E [.F [.G tanzt ] ] ] ] [.Peter ] ] ] ]"
             \ex \begin{tikzpicture}[baseline=(top.base)]
@@ -25,7 +38,7 @@
     \end{exe}
 
 \begin{exe}
-    \ex Der große verschüchterte fliegende Wolf aus Twilight.\hfill\textit{\footnotesize $7/15$ iterations, 3.96ms}
+    \ex Der große verschüchterte fliegende Wolf aus Twilight.\hfill\textit{\footnotesize $7/15$ iterations, 4.10ms}\\{\scriptsize\spverb|[.\node(top){DP}; [.D der ] [.NP [.AP [.A große ] ] [.N$''''$ [.AP^2 [.A^2 verschüchterte ] ] [.N$'''$ [.AP^3 [.A^3 fliegende ] ] [.N$''$ [.N$'$ [.N Wolf ] ] [.PP [.P aus ] [.NP^2 [.N^2 Twilight ] ] ] ] ] ] ] ]|}
         \begin{xlist}
             % input string: "[.\node(top){DP}; [.D der ] [.NP [.AP [.A große ] ] [.N$''''$ [.AP^2 [.A^2 verschüchterte ] ] [.N$'''$ [.AP^3 [.A^3 fliegende ] ] [.N$''$ [.N$'$ [.N Wolf ] ] [.PP [.P aus ] [.NP^2 [.N^2 Twilight ] ] ] ] ] ] ] ]"
             \ex \begin{tikzpicture}[baseline=(top.base)]
@@ -38,7 +51,7 @@
     \end{exe}
 
 \begin{exe}
-    \ex Andrew malt den Wolf und_{ind} die Blumen.\hfill\textit{\footnotesize $7/15$ iterations, 3.12ms}
+    \ex Andrew malt den Wolf und_{ind} die Blumen.\hfill\textit{\footnotesize $7/15$ iterations, 3.05ms}\\{\scriptsize\spverb|[.\node(top){S}; [.NP [.N Andrew ] ] [.VP [.V malt ] [.CoordP [.DP^1 [.D^1 den ] [.NP^2 [.N^2 Wolf ] ] ] [.Coord$'$ [.Coord und_{ind} ] [.DP^2 [.D^2 die ] [.NP^3 [.N^3 Blumen ] ] ] ] ] ] ]|}
         \begin{xlist}
             % input string: "[.\node(top){S}; [.NP [.N Andrew ] ] [.VP [.V malt ] [.CoordP [.DP^1 [.D^1 den ] [.NP^2 [.N^2 Wolf ] ] ] [.Coord$'$ [.Coord und_{ind} ] [.DP^2 [.D^2 die ] [.NP^3 [.N^3 Blumen ] ] ] ] ] ] ]"
             \ex \begin{tikzpicture}[baseline=(top.base)]
@@ -51,7 +64,7 @@
     \end{exe}
 
 \begin{exe}
-    \ex A person not Bill invite.\hfill\textit{\footnotesize $5/15$ iterations, 2.08ms}
+    \ex A person not Bill invite.\hfill\textit{\footnotesize $5/15$ iterations, 2.20ms}\\{\scriptsize\spverb|[.\node(top){S}; [.DP [.D a ] [.NP [.N person ] ] ] [.XP [.1 ] [.S$'$ [.Neg not ] [.S$''$ [.NP^2 [.N^2 Bill ] ] [.VP [.V invite ] [.$t$ ] ] ] ] ] ]|}
         \begin{xlist}
             % input string: "[.\node(top){S}; [.DP [.D a ] [.NP [.N person ] ] ] [.XP [.1 ] [.S$'$ [.Neg not ] [.S$''$ [.NP^2 [.N^2 Bill ] ] [.VP [.V invite ] [.$t$ ] ] ] ] ] ]"
             \ex \begin{tikzpicture}[baseline=(top.base)]
@@ -64,7 +77,7 @@
     \end{exe}
 
 \begin{exe}
-    \ex Schuldiger Idiot.\hfill\textit{\footnotesize $2/15$ iterations, 0.57ms}
+    \ex Schuldiger Idiot.\hfill\textit{\footnotesize $2/15$ iterations, 0.60ms}\\{\scriptsize\spverb|[.\node(top){NP}; [.AP schuldiger ] [.NP Idiot ] ]|}
         \begin{xlist}
             % input string: "[.\node(top){NP}; [.AP schuldiger ] [.NP Idiot ] ]"
             \ex \begin{tikzpicture}[baseline=(top.base)]
@@ -77,7 +90,7 @@
     \end{exe}
 
 \begin{exe}
-    \ex Some person is sad or she sleeps.\hfill\textit{\footnotesize $5/15$ iterations, 3.43ms}
+    \ex Some person is sad or she sleeps.\hfill\textit{\footnotesize $5/15$ iterations, 3.33ms}\\{\scriptsize\spverb|[.\node(top){S}; [.S'' [.NP^1 [.Q some ] [.N^1 person ] ] [.VP [.V is ] [.AP [.A sad ] ] ] ] [.DisjP [.Disj or ] [.S' [.NP^2 [.N^2 she ] ] [.VP^2 [.V^2 sleeps ] ] ] ] ]|}
         \begin{xlist}
             % input string: "[.\node(top){S}; [.S'' [.NP^1 [.Q some ] [.N^1 person ] ] [.VP [.V is ] [.AP [.A sad ] ] ] ] [.DisjP [.Disj or ] [.S' [.NP^2 [.N^2 she ] ] [.VP^2 [.V^2 sleeps ] ] ] ] ]"
             \ex \begin{tikzpicture}[baseline=(top.base)]
@@ -90,7 +103,7 @@
     \end{exe}
 
 \begin{exe}
-    \ex Alle Blumen beobachtet Peter.\hfill\textit{\footnotesize $4/15$ iterations, 0.84ms}
+    \ex Alle Blumen beobachtet Peter.\hfill\textit{\footnotesize $4/15$ iterations, 0.90ms}\\{\scriptsize\spverb|[.\node(top){S'}; [.NP^1 [.Q alle ] [.N^1 Blumen ] ] [.XP [.1 ] [.S [.VP [.V beobachtet ] [.$t$ ] ] [.NP^2 [.N^2 Peter ] ] ] ] ]|}
         \begin{xlist}
             % input string: "[.\node(top){S'}; [.NP^1 [.Q alle ] [.N^1 Blumen ] ] [.XP [.1 ] [.S [.VP [.V beobachtet ] [.$t$ ] ] [.NP^2 [.N^2 Peter ] ] ] ] ]"
             \ex \begin{tikzpicture}[baseline=(top.base)]
@@ -103,7 +116,7 @@
     \end{exe}
 
 \begin{exe}
-    \ex Peter ist ein fliegender Junge aus Nimmerland.\hfill\textit{\footnotesize $6/15$ iterations, 1.93ms}
+    \ex Peter ist ein fliegender Junge aus Nimmerland.\hfill\textit{\footnotesize $6/15$ iterations, 1.58ms}\\{\scriptsize\spverb|[.\node(top){S}; [.NP^1 [.N^1 Peter ] ] [.VP [.V ist ] [.DP [.D ein ] [.NP^2 [.N$''$^2 [.AP [.A fliegender ] ] [.N$'$^2 [.N^2 Junge ] ] ] [.PP [.P aus ] [.NP^3 [.N^3 Nimmerland ] ] ] ] ] ] ]|}
         \begin{xlist}
             % input string: "[.\node(top){S}; [.NP^1 [.N^1 Peter ] ] [.VP [.V ist ] [.DP [.D ein ] [.NP^2 [.N$''$^2 [.AP [.A fliegender ] ] [.N$'$^2 [.N^2 Junge ] ] ] [.PP [.P aus ] [.NP^3 [.N^3 Nimmerland ] ] ] ] ] ] ]"
             \ex \begin{tikzpicture}[baseline=(top.base)]
@@ -116,7 +129,7 @@
     \end{exe}
 
 \begin{exe}
-    \ex Er ist stolz auf Maria.\hfill\textit{\footnotesize $5/15$ iterations, 1.12ms}
+    \ex Er ist stolz auf Maria.\hfill\textit{\footnotesize $5/15$ iterations, 1.56ms}\\{\scriptsize\spverb|[.\node(top){S}; [.NP [.N er ] ] [.VP [.V ist ] [.AP [.A stolz ] [.PP [.P auf ] [.NP^2 [.N^2 Maria ] ] ] ] ] ]|}
         \begin{xlist}
             % input string: "[.\node(top){S}; [.NP [.N er ] ] [.VP [.V ist ] [.AP [.A stolz ] [.PP [.P auf ] [.NP^2 [.N^2 Maria ] ] ] ] ] ]"
             \ex \begin{tikzpicture}[baseline=(top.base)]
@@ -129,7 +142,7 @@
     \end{exe}
 
 \begin{exe}
-    \ex Einige schnarchende Jungen zwicken die kleinen Männer.\hfill\textit{\footnotesize $6/15$ iterations, 2.11ms}
+    \ex Einige schnarchende Jungen zwicken die kleinen Männer.\hfill\textit{\footnotesize $6/15$ iterations, 2.55ms}\\{\scriptsize\spverb|[.\node(top){S}; [.NP [.Q einige ] [.N' [.AP^1 [.A^1 schnarchende ] ] [.N'' [.N Jungen ] ] ] ] [.VP [.V zwicken ] [.NP^2 [.D die ] [.N'^2 [.AP^2 [.A^2 kleinen ] ] [.N^2 Männer ] ] ] ] ]|}
         \begin{xlist}
             % input string: "[.\node(top){S}; [.NP [.Q einige ] [.N' [.AP^1 [.A^1 schnarchende ] ] [.N'' [.N Jungen ] ] ] ] [.VP [.V zwicken ] [.NP^2 [.D die ] [.N'^2 [.AP^2 [.A^2 kleinen ] ] [.N^2 Männer ] ] ] ] ]"
             \ex \begin{tikzpicture}[baseline=(top.base)]
@@ -142,7 +155,7 @@
     \end{exe}
 
 \begin{exe}
-    \ex Der Junge der_{RP} wo die Fee aus Nimmerland belästigt fliegt.\hfill\textit{\footnotesize $9/15$ iterations, 3.95ms}
+    \ex Der Junge der_{RP} wo die Fee aus Nimmerland belästigt fliegt.\hfill\textit{\footnotesize $9/15$ iterations, 4.69ms}\\{\scriptsize\spverb|[.\node(top){S}; [.DP^1 [.D^1 der ] [.NP [.N$''$ [.N$'$ [.N Junge ] ] [.CP [.DP^2 der_{RP}_1 ] [.C$'$ [.C wo ] [.S$'$ [.$t$_1 ] [.VP [.DP^3 [.D^3 die ] [.NP^2 [.N$''$^2 [.N$'$^2 [.N^2 Fee ] ] [.PP [.P aus ] [.DP^4 Nimmerland ] ] ] ] ]  [.V belästigt ] ] ] ] ] ] ] ]  [.VP^2 [.V^2 fliegt ] ] ]|}
         \begin{xlist}
             % input string: "[.\node(top){S}; [.DP^1 [.D^1 der ] [.NP [.N$''$ [.N$'$ [.N Junge ] ] [.CP [.DP^2 der_{RP}_1 ] [.C$'$ [.C wo ] [.S$'$ [.$t$_1 ] [.VP [.DP^3 [.D^3 die ] [.NP^2 [.N$''$^2 [.N$'$^2 [.N^2 Fee ] ] [.PP [.P aus ] [.DP^4 Nimmerland ] ] ] ] ]  [.V belästigt ] ] ] ] ] ] ] ]  [.VP^2 [.V^2 fliegt ] ] ]"
             \ex \begin{tikzpicture}[baseline=(top.base)]
@@ -155,7 +168,7 @@
     \end{exe}
 
 \begin{exe}
-    \ex Der Junge der_{RP} wo die Fee aus Nimmerland belästigt fliegt.\hfill\textit{\footnotesize $9/15$ iterations, 1.41ms}
+    \ex Der Junge der_{RP} wo die Fee aus Nimmerland belästigt fliegt.\hfill\textit{\footnotesize $9/15$ iterations, 1.38ms}\\{\scriptsize\spverb|[.S [.DP^1 [.D^1 der ] [.NP [.N$''$ [.N$'$ [.N Junge ] ] [.CP [.DP^2 der_{RP} ] [.C$'$ [.C wo ] [.S$'$ [.$t$_{1} ] [.VP [.DP^3 [.D^3 die ] [.NP^2 [.N$''$^2 [.N$'$^2 [.N^2 Fee ] ] [.PP [.P aus ] [.DP^4 Nimmerland ] ] ] ] ]  [.V belästigt ] ] ] ] ] ] ] ]  [.VP^2 [.V^2 fliegt ] ] ]|}
         \begin{xlist}
             % input string: "[.S [.DP^1 [.D^1 der ] [.NP [.N$''$ [.N$'$ [.N Junge ] ] [.CP [.DP^2 der_{RP} ] [.C$'$ [.C wo ] [.S$'$ [.$t$_{1} ] [.VP [.DP^3 [.D^3 die ] [.NP^2 [.N$''$^2 [.N$'$^2 [.N^2 Fee ] ] [.PP [.P aus ] [.DP^4 Nimmerland ] ] ] ] ]  [.V belästigt ] ] ] ] ] ] ] ]  [.VP^2 [.V^2 fliegt ] ] ]"
             \ex \begin{tikzpicture}[baseline=(top.base)]
@@ -168,7 +181,7 @@
     \end{exe}
 
 \begin{exe}
-    \ex Dem Schüler das Buch Bill gibt.\hfill\textit{\footnotesize $6/15$ iterations, 2.35ms}
+    \ex Dem Schüler das Buch Bill gibt.\hfill\textit{\footnotesize $6/15$ iterations, 2.55ms}\\{\scriptsize\spverb|[.\node(top){WP}; [.DP^2 [.D^2 dem ] [.NP^2 [.N^2 Schüler ] ] ] [.ZP [.2 ] [.XP [.DP^1 [.D^1 das ] [.NP^1 [.N^1 Buch ] ] ] [.YP [.1 ] [.S [.NP^3 [.N^3 Bill ] ] [.VP [.V$'$ [.V gibt ] [.$t$ ] ] [.$t$ ] ] ] ] ] ] ]|}
         \begin{xlist}
             % input string: "[.\node(top){WP}; [.DP^2 [.D^2 dem ] [.NP^2 [.N^2 Schüler ] ] ] [.ZP [.2 ] [.XP [.DP^1 [.D^1 das ] [.NP^1 [.N^1 Buch ] ] ] [.YP [.1 ] [.S [.NP^3 [.N^3 Bill ] ] [.VP [.V$'$ [.V gibt ] [.$t$ ] ] [.$t$ ] ] ] ] ] ] ]"
             \ex \begin{tikzpicture}[baseline=(top.base)]
@@ -181,7 +194,7 @@
     \end{exe}
 
 \begin{exe}
-    \ex Alle Hunde einige Türen schließen.\hfill\textit{\footnotesize $5/15$ iterations, 1.44ms}
+    \ex Alle Hunde einige Türen schließen.\hfill\textit{\footnotesize $5/15$ iterations, 1.81ms}\\{\scriptsize\spverb|[.\node(top){S$'$}; [.DP^2 [.D^2 alle ] [.NP^2 [.N^2 Hunde ] ] ] [.XP [.2 ] [.YP [.DP^1 [.D^1 einige ] [.NP^1 [.N^1 Türen ] ] ] [.ZP [.1 ] [.S [.$t$ ] [.VP [.V schließen ] [.$t$ ] ] ] ] ] ] ]|}
         \begin{xlist}
             % input string: "[.\node(top){S$'$}; [.DP^2 [.D^2 alle ] [.NP^2 [.N^2 Hunde ] ] ] [.XP [.2 ] [.YP [.DP^1 [.D^1 einige ] [.NP^1 [.N^1 Türen ] ] ] [.ZP [.1 ] [.S [.$t$ ] [.VP [.V schließen ] [.$t$ ] ] ] ] ] ] ]"
             \ex \begin{tikzpicture}[baseline=(top.base)]
@@ -194,7 +207,7 @@
     \end{exe}
 
 \begin{exe}
-    \ex Maria -s snore.\hfill\textit{\footnotesize $5/15$ iterations, 1.31ms}
+    \ex Maria -s snore.\hfill\textit{\footnotesize $5/15$ iterations, 1.33ms}\\{\scriptsize\spverb|[.\node(top){TP}; [.DP Maria ] [.T'' [.1 ] [.T' [.T^0 -s ] [.VP [.t ] [.V$'$ [.V^0 snore ] ] ] ] ] ]|}
         \begin{xlist}
             % input string: "[.\node(top){TP}; [.DP Maria ] [.T'' [.1 ] [.T' [.T^0 -s ] [.VP [.t ] [.V$'$ [.V^0 snore ] ] ] ] ] ]"
             \ex \begin{tikzpicture}[baseline=(top.base)]
@@ -207,7 +220,7 @@
     \end{exe}
 
 \begin{exe}
-    \ex Das essen $t$.\hfill\textit{\footnotesize $2/15$ iterations, 0.52ms}
+    \ex Das essen $t$.\hfill\textit{\footnotesize $2/15$ iterations, 0.54ms}\\{\scriptsize\spverb|[.\node(top){S}; [.DP [.D^0 das ] [.NP essen ] ] [.VP $t$ ] ]|}
         \begin{xlist}
             % input string: "[.\node(top){S}; [.DP [.D^0 das ] [.NP essen ] ] [.VP $t$ ] ]"
             \ex \begin{tikzpicture}[baseline=(top.base)]
@@ -220,7 +233,7 @@
     \end{exe}
 
 \begin{exe}
-    \ex Das essen $t$.\hfill\textit{\footnotesize $2/15$ iterations, 0.21ms}
+    \ex Das essen $t$.\hfill\textit{\footnotesize $2/15$ iterations, 0.21ms}\\{\scriptsize\spverb|[.S [.DP [.D^0 das ] [.NP essen ] ] [.VP $t$ ] ]|}
         \begin{xlist}
             % input string: "[.S [.DP [.D^0 das ] [.NP essen ] ] [.VP $t$ ] ]"
             \ex \begin{tikzpicture}[baseline=(top.base)]
@@ -233,7 +246,7 @@
     \end{exe}
 
 \begin{exe}
-    \ex Peter hits Peter.\hfill\textit{\footnotesize $4/15$ iterations, 0.26ms}
+    \ex Peter hits Peter.\hfill\textit{\footnotesize $4/15$ iterations, 0.27ms}\\{\scriptsize\spverb|[.S [.NP [.N Peter ] ] [.VP [.V hits ] [.NP [.N Peter ] ] ] ]|}
         \begin{xlist}
             % input string: "[.S [.NP [.N Peter ] ] [.VP [.V hits ] [.NP [.N Peter ] ] ] ]"
             \ex \begin{tikzpicture}[baseline=(top.base)]
@@ -246,7 +259,7 @@
     \end{exe}
 
 \begin{exe}
-    \ex Alle Blumen sind stolz auf essen.\hfill\textit{\footnotesize $15/15$ iterations, 0.79ms}
+    \ex Alle Blumen sind stolz auf essen.\hfill\textit{\footnotesize $15/15$ iterations, 0.82ms}\\{\scriptsize\spverb|[.S [.NP^1 [.Q alle ] [.N^1 Blumen ] ] [.VP [.V sind ] [.AP [.A stolz ] [.PP [.P auf ] [.NP^2 [.N^2 essen ] ] ] ] ] ]|}
         \begin{xlist}
             % input string: "[.S [.NP^1 [.Q alle ] [.N^1 Blumen ] ] [.VP [.V sind ] [.AP [.A stolz ] [.PP [.P auf ] [.NP^2 [.N^2 essen ] ] ] ] ] ]"
             \ex \begin{tikzpicture}[baseline=(top.base)]
@@ -259,7 +272,7 @@
     \end{exe}
 
 \begin{exe}
-    \ex Der Junge der_{RP} wo die Fee aus Nimmerland belästigt fliegt.\hfill\textit{\footnotesize $9/15$ iterations, 1.49ms}
+    \ex Der Junge der_{RP} wo die Fee aus Nimmerland belästigt fliegt.\hfill\textit{\footnotesize $9/15$ iterations, 1.32ms}\\{\scriptsize\spverb|[.S [.DP [.D der ] [.NP [.N$''$ [.N$'$ [.N Junge ] ] [.CP [.DP der_{RP} ] [.C$'$ [.C wo ] [.S$'$ [.$t$_1 ] [.VP [.DP [.D die ] [.NP [.N$''$ [.N$'$ [.N Fee ] ] [.PP [.P aus ] [.DP Nimmerland ] ] ] ] ]  [.V belästigt ] ] ] ] ] ] ] ]  [.VP [.V fliegt ] ] ]|}
         \begin{xlist}
             % input string: "[.S [.DP [.D der ] [.NP [.N$''$ [.N$'$ [.N Junge ] ] [.CP [.DP der_{RP} ] [.C$'$ [.C wo ] [.S$'$ [.$t$_1 ] [.VP [.DP [.D die ] [.NP [.N$''$ [.N$'$ [.N Fee ] ] [.PP [.P aus ] [.DP Nimmerland ] ] ] ] ]  [.V belästigt ] ] ] ] ] ] ] ]  [.VP [.V fliegt ] ] ]"
             \ex \begin{tikzpicture}[baseline=(top.base)]
@@ -271,3 +284,45 @@
         \end{xlist}
     \end{exe}
 
+\clearpage
+\scriptsize
+\begin{center}
+\begin{tabular}{lllllllllllllll}
+\toprule
+   $t$ &        $e$ & $\langle t, t\rangle$ & Vacuous & Pronouns & $\langle e, t\rangle$ & $\langle e, \langle e, t\rangle\rangle$ & $\langle e, \langle e, e\rangle\rangle$ & $\langle e, \langle e, \langle e, t\rangle\rangle\rangle$ & $\langle t, \langle t, t\rangle\rangle$ & $\langle \langle e, t\rangle, \langle \langle e, t\rangle, t\rangle\rangle$ & $\langle \langle e, t\rangle, t\rangle$ & $\langle \langle e, t\rangle, e\rangle$ &  Indices & Traces \\
+\midrule
+regnet &       Bill &                   not &      is &       er &                   mad &                                    hits &                               und_{ind} &                                               gibt &                                     und &                                                all &                                  nobody &                                     the &        1 &    $t$ \\
+       &     Andrew &                       &     ist &       he &                person &                                  invite &                                         &                                                    &                                    oder &                                               alle &                                         &                                     den &        2 &      t \\
+       &     Mathis &                       &      of &      his &                 essen &                              beobachtet &                                         &                                                    &                                      or &                                             einige &                                         &                                     der & der_{RP} &        \\
+       &       Mark &                       &      es &      she &                sleeps &                               belästigt &                                         &                                                    &                                         &                                               some &                                         &                                     die &          &        \\
+       &      Peter &                       &     ein &          &                 tanzt &                                  bought &                                         &                                                    &                                         &                                                  a &                                         &                                     das &          &        \\
+       &     Markus &                       &     auf &          &             schnarcht &                                     ate &                                         &                                                    &                                         &                                                    &                                         &                                     dem &          &        \\
+       &      Klaus &                       &      wo &          &        verschüchterte &                                   hated &                                         &                                                    &                                         &                                                    &                                         &                                         &          &        \\
+       &   Twilight &                       &      -s &          &                 große &                                 zwicken &                                         &                                                    &                                         &                                                    &                                         &                                         &          &        \\
+       &       Rome &                       &    sind &          &          schnarchende &                               schließen &                                         &                                                    &                                         &                                                    &                                         &                                         &          &        \\
+       & Nimmerland &                       &         &          &              arbeitet &                             destruction &                                         &                                                    &                                         &                                                    &                                         &                                         &          &        \\
+       &      Maria &                       &         &          &                 Hunde &                                    malt &                                         &                                                    &                                         &                                                    &                                         &                                         &          &        \\
+       &            &                       &         &          &                 Türen &                                     aus &                                         &                                                    &                                         &                                                    &                                         &                                         &          &        \\
+       &            &                       &         &          &                 snore &                                   stolz &                                         &                                                    &                                         &                                                    &                                         &                                         &          &        \\
+       &            &                       &         &          &            schuldiger &                                         &                                         &                                                    &                                         &                                                    &                                         &                                         &          &        \\
+       &            &                       &         &          &                  Mann &                                         &                                         &                                                    &                                         &                                                    &                                         &                                         &          &        \\
+       &            &                       &         &          &                Männer &                                         &                                         &                                                    &                                         &                                                    &                                         &                                         &          &        \\
+       &            &                       &         &          &               kleinen &                                         &                                         &                                                    &                                         &                                                    &                                         &                                         &          &        \\
+       &            &                       &         &          &                   Fee &                                         &                                         &                                                    &                                         &                                                    &                                         &                                         &          &        \\
+       &            &                       &         &          &                fliegt &                                         &                                         &                                                    &                                         &                                                    &                                         &                                         &          &        \\
+       &            &                       &         &          &                Jungen &                                         &                                         &                                                    &                                         &                                                    &                                         &                                         &          &        \\
+       &            &                       &         &          &               Schüler &                                         &                                         &                                                    &                                         &                                                    &                                         &                                         &          &        \\
+       &            &                       &         &          &                  Buch &                                         &                                         &                                                    &                                         &                                                    &                                         &                                         &          &        \\
+       &            &                       &         &          &                 Junge &                                         &                                         &                                                    &                                         &                                                    &                                         &                                         &          &        \\
+       &            &                       &         &          &                  Wolf &                                         &                                         &                                                    &                                         &                                                    &                                         &                                         &          &        \\
+       &            &                       &         &          &                Blumen &                                         &                                         &                                                    &                                         &                                                    &                                         &                                         &          &        \\
+       &            &                       &         &          &               flowers &                                         &                                         &                                                    &                                         &                                                    &                                         &                                         &          &        \\
+       &            &                       &         &          &                 Idiot &                                         &                                         &                                                    &                                         &                                                    &                                         &                                         &          &        \\
+       &            &                       &         &          &                   cat &                                         &                                         &                                                    &                                         &                                                    &                                         &                                         &          &        \\
+       &            &                       &         &          &                   sad &                                         &                                         &                                                    &                                         &                                                    &                                         &                                         &          &        \\
+       &            &                       &         &          &            fliegender &                                         &                                         &                                                    &                                         &                                                    &                                         &                                         &          &        \\
+       &            &                       &         &          &             fliegende &                                         &                                         &                                                    &                                         &                                                    &                                         &                                         &          &        \\
+\bottomrule
+\end{tabular}
+
+\end{center}
