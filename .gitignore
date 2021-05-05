@@ -11,3 +11,5 @@ find_hierarchy
 maintainability/
 composition.**
 skeleton-composition.**
+compose_tree.**
+test_compose_tree.**
