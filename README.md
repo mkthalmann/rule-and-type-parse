@@ -30,7 +30,7 @@ Next to annotating semantic types and rules of compositions, there are a few ext
 - change the color of the type and rule annotations
 - note the necessary number of iterations through the entire tree to arrive at a full representation for each node in the LaTeX document
 - note the time it took
-- composition errors can be colorized differently from the others. That is to say that composition errors (e.g. where a two nodes of type `e` are sisters) will not cause the script to crash (or complain). Instead, the rules and types of these nodes can be marked with "?" and colored in red.
+- composition errors can be colorized differently from the others. That is to say that composition errors (e.g. where two nodes of type `e` are sisters) will not cause the script to crash (or complain). Instead, the rules and types of these nodes can be marked with "?" and colored in red.
 
 ## Examples
 
